@@ -9,6 +9,7 @@
 6. Webarchvie
 7. Js files emulation
 
+
 #### 1. Subdomain emulation and Screenshot :sleepy:
 Tools Used-
  > [Aquatone](https://github.com/michenriksen/aquatone)
@@ -85,4 +86,24 @@ For multiple sites -
 
  ```
 for line in `cat /path-to-url`; do python linkfinder.py -d $line -o $line.html
+```
+
+## Automation
+
+Automating all the above scripts in to one
+Save the below code as `recon` and move it to /bin/recon and chmod +x recon
+
+```
+#!/bin/bash
+aquatone-discover -d $1
+aquatone-scan -d $1
+aquatone-takeover -d $1
+aquatone-gather -d $1
+mkdir /home/mad/Documents/Recon/$1
+python3 /home/mad/Sublist3r/sublist3r.py -d $1 -o /home/mad/Documents/Recon/$1/$1.txt
+cat /home/mad/Documents/Recon/$1/$1.txt | ./gopath/bin/httprobe > /home/mad/Documents/Recon/$1/$1_live.txt
+cat /home/mad/Documents/Recon/$1/$1_live.txt /home/mad/aquatone/$1/urls.txt | uniq > /home/mad/Documents/Recon/$1/final_urls.txt
+python3 /home/mad/dirsearch/dirsearch.py -L /home/mad/Documents/Recon/$1/final_urls.txt -e * --plain-text-report=/home/mad/Documents/Recon/$1/dirsearch.txt
+/home/mad/CMSeeK/sc > /home/mad/Documents/Recon/$1/cms_scan.txt
+python /home/mad/waybackMachine/waybackMachine.py $1 > /home/mad/Documents/Recon/$1/wayback.txt
 ```
